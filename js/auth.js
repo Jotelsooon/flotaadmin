@@ -39,18 +39,123 @@ export function switchAuthTab(tab) {
 export async function loadProfile(user, onReady) {
   const { data: p, error } = await sb.from('perfiles').select('*').eq('id', user.id).single();
   if (error || !p) {
-    showScreen('pending');
+    state.pendingUser = user;
+    await renderPendingScreen(user);
     return;
   }
-  // Encargado without flota assignment — show pending until invited
+  if (p.rol === 'superadmin') {
+    state.profile = p;
+    showScreen('app');
+    onReady();
+    return;
+  }
   if (p.rol === 'encargado' && !p.titular_id) {
-    showScreen('pending');
+    state.pendingUser = user;
+    await renderPendingScreen(user);
     return;
   }
   state.profile = p;
   showScreen('app');
   await loadMoviles();
   onReady();
+}
+
+// ── Pending screen (dynamic) ─────────────────────────────────
+export async function renderPendingScreen(user) {
+  showScreen('pending');
+  const el = document.getElementById('pending-content');
+  if (!el) return;
+
+  el.innerHTML = '<p style="padding:24px;text-align:center;color:var(--muted);font-size:13px">Cargando...</p>';
+
+  const { data: sol } = await sb.from('solicitudes_rol')
+    .select('*').eq('user_id', user.id).maybeSingle();
+
+  let solicitudHtml = '';
+  if (!sol) {
+    solicitudHtml = `
+      <div class="sol-request-box">
+        <p style="font-size:13px;color:var(--subtle);margin:0 0 12px">¿Querés gestionar tu propia flota como Titular?</p>
+        <div class="form-group">
+          <label for="sol-msg">Mensaje para el administrador <span style="font-size:11px;color:var(--muted)">(opcional)</span></label>
+          <textarea id="sol-msg" rows="2" placeholder="Ej: Tengo 3 taxis y quiero gestionar mi propia flota..."></textarea>
+        </div>
+        <button class="btn primary sm" id="btn-sol-titular">Solicitar rol de Titular</button>
+      </div>`;
+  } else if (sol.estado === 'pendiente') {
+    solicitudHtml = `
+      <div class="success-msg" style="display:flex">
+        Tu solicitud para ser Titular está siendo revisada por el administrador.
+      </div>`;
+  } else if (sol.estado === 'rechazada') {
+    solicitudHtml = `
+      <div class="error-msg-box" style="display:block">
+        Tu solicitud fue rechazada por el administrador.
+      </div>
+      <div class="sol-request-box" style="margin-top:12px">
+        <p style="font-size:13px;color:var(--subtle);margin:0 0 12px">Podés volver a solicitar:</p>
+        <div class="form-group">
+          <label for="sol-msg">Mensaje <span style="font-size:11px;color:var(--muted)">(opcional)</span></label>
+          <textarea id="sol-msg" rows="2"></textarea>
+        </div>
+        <button class="btn primary sm" id="btn-sol-titular">Volver a solicitar</button>
+      </div>`;
+  } else if (sol.estado === 'aprobada') {
+    solicitudHtml = `
+      <div class="success-msg" style="display:flex">
+        Tu solicitud fue aprobada. Cerrá sesión y volvé a ingresar para acceder como Titular.
+      </div>`;
+  }
+
+  el.innerHTML = `
+    <div class="pi" aria-hidden="true">⏳</div>
+    <h3>Cuenta pendiente</h3>
+    <p>Tu cuenta fue creada como <strong>Encargado</strong>. Pedile al titular el link de invitación para unirte a su flota.</p>
+    <div style="width:100%;max-width:340px;margin-top:16px;text-align:left">
+      ${solicitudHtml}
+    </div>
+    <button class="btn sm" id="btn-logout-pending" style="margin:20px auto 0;display:flex">Volver al login</button>
+  `;
+
+  document.getElementById('btn-logout-pending')?.addEventListener('click', doLogout);
+  document.getElementById('btn-sol-titular')?.addEventListener('click', () => _enviarSolicitud(user));
+}
+
+async function _enviarSolicitud(user) {
+  const btn = document.getElementById('btn-sol-titular');
+  if (btn) btn.disabled = true;
+  const msg = document.getElementById('sol-msg')?.value.trim() || null;
+  const nombre = user.user_metadata?.nombre || user.email?.split('@')[0] || 'Sin nombre';
+
+  const { data: existing } = await sb.from('solicitudes_rol')
+    .select('id').eq('user_id', user.id).maybeSingle();
+
+  let error;
+  if (existing) {
+    ({ error } = await sb.from('solicitudes_rol').update({
+      estado:     'pendiente',
+      mensaje:    msg,
+      created_at: new Date().toISOString(),
+      reviewed_at: null,
+      reviewed_by: null,
+    }).eq('id', existing.id));
+  } else {
+    ({ error } = await sb.from('solicitudes_rol').insert({
+      user_id:       user.id,
+      nombre,
+      email:         user.email,
+      rol_solicitado: 'titular',
+      mensaje:       msg,
+    }));
+  }
+
+  if (error) {
+    if (btn) btn.disabled = false;
+    alert('Error al enviar solicitud: ' + error.message);
+    return;
+  }
+
+  await renderPendingScreen(user);
 }
 
 export async function loadMoviles() {
@@ -100,8 +205,9 @@ export async function doRegister() {
 
 export async function doLogout() {
   await sb.auth.signOut();
-  state.profile = null;
-  state.moviles = [];
+  state.profile     = null;
+  state.pendingUser = null;
+  state.moviles     = [];
   state.historialRows = [];
   if (state.chartBar)      { state.chartBar.destroy();      state.chartBar      = null; }
   if (state.chartDoughnut) { state.chartDoughnut.destroy(); state.chartDoughnut = null; }
@@ -133,6 +239,5 @@ export function setupAuthListeners() {
   // Login / register buttons (replaces inline onclick)
   document.getElementById('btn-login')?.addEventListener('click', doLogin);
   document.getElementById('btn-register')?.addEventListener('click', doRegister);
-  document.getElementById('btn-logout-pending')?.addEventListener('click', doLogout);
 
 }

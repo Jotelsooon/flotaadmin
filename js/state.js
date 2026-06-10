@@ -3,6 +3,7 @@
 
 export const state = {
   profile:      null,   // { id, email, nombre, rol, titular_id }
+  pendingUser:  null,   // auth.user when perfiles row missing (for pending screen)
   moviles:      [],     // [{ id, numero, descripcion, reparto_tipo, ... }]
   historialRows: [],    // [{ id, fecha, turno, movil_id, movil_numero, ... }]
   chartBar:     null,   // Chart.js bar instance

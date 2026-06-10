@@ -13,25 +13,27 @@ export function registerRoutes(map) {
 export function setupNav() {
   const { rol, nombre } = state.profile;
   const ini = nombre.slice(0, 2).toUpperCase();
-  const rl  = { titular: 'Titular', encargado: 'Encargado', chofer: 'Chofer' };
+  const rl  = { superadmin: 'SuperAdmin', titular: 'Titular', encargado: 'Encargado', chofer: 'Chofer' };
 
-  document.getElementById('m-name').textContent       = esc(nombre);
-  document.getElementById('ds-av').textContent        = ini;
-  document.getElementById('ds-name').textContent      = esc(nombre);
-  document.getElementById('ds-role').textContent      = rl[rol] || rol;
+  document.getElementById('m-name').textContent        = esc(nombre);
+  document.getElementById('ds-av').textContent         = ini;
+  document.getElementById('ds-name').textContent       = esc(nombre);
+  document.getElementById('ds-role').textContent       = rl[rol] || rol;
   document.getElementById('ds-role-label').textContent = rl[rol] || rol;
 
   let pages = [];
-  if (rol === 'titular')   pages = ['dashboard', 'carga', 'historial', 'moviles', 'usuarios'];
-  else if (rol === 'encargado') pages = ['carga', 'historial', 'usuarios'];
-  else                     pages = ['carga'];
+  if (rol === 'superadmin')       pages = ['superadmin'];
+  else if (rol === 'titular')     pages = ['dashboard', 'carga', 'historial', 'moviles', 'usuarios'];
+  else if (rol === 'encargado')   pages = ['carga', 'historial', 'usuarios'];
+  else                            pages = ['carga'];
 
   const labels = {
-    dashboard: 'Dashboard',
-    carga:     'Cargar',
-    historial: 'Historial',
-    moviles:   'Móviles',
-    usuarios:  'Usuarios',
+    superadmin: 'Panel Admin',
+    dashboard:  'Dashboard',
+    carga:      'Cargar',
+    historial:  'Historial',
+    moviles:    'Móviles',
+    usuarios:   'Usuarios',
   };
 
   const bottomNav  = document.getElementById('bottom-nav');
@@ -76,11 +78,12 @@ export function showPage(p) {
   });
 
   const titles = {
-    dashboard: 'Dashboard',
-    carga:     'Nueva recaudación',
-    historial: 'Historial',
-    moviles:   'Mis móviles',
-    usuarios:  'Usuarios',
+    superadmin: 'Panel SuperAdmin',
+    dashboard:  'Dashboard',
+    carga:      'Nueva recaudación',
+    historial:  'Historial',
+    moviles:    'Mis móviles',
+    usuarios:   'Usuarios',
   };
   const t = titles[p] || p;
   document.getElementById('page-title').textContent = t;

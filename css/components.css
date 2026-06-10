@@ -198,6 +198,52 @@ tr:last-child td { border-bottom: none; }
 .badge.rol-chofer     { background: var(--green-light); color: #27500A; }
 .badge.rol-pendiente  { background: var(--bg); color: var(--muted); }
 
+/* ── SuperAdmin panel ───────────────────────────────────── */
+.sol-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+  background: var(--white);
+}
+.sol-card:last-child { margin-bottom: 0; }
+.sol-info { flex: 1; min-width: 0; }
+
+.sol-request-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+}
+
+.role-pill {
+  display: inline-flex;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.superadmin-pill { background: #1f1f3e; color: #c4c4ff; }
+.titular-pill    { background: var(--blue-light);  color: var(--blue-dark); }
+.encargado-pill  { background: var(--amber-light); color: #633806; }
+.chofer-pill     { background: var(--green-light); color: #27500A; }
+
+.role-select {
+  padding: 6px 10px;
+  font-size: 13px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  color: var(--text);
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-appearance: none;
+}
+
 /* ── Period filters ─────────────────────────────────────── */
 .period-filters   { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
 .pf-btn {
