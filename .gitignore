@@ -1,0 +1,10 @@
+# gstack / QA tool internals
+.gstack/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/settings.json
+*.code-workspace

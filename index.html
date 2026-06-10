@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#185FA5">
+  <title>FlotaAdmin</title>
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' cdn.jsdelivr.net cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' https: blob: data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none';"
+  >
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/screens.css">
+
+  <!-- CDN libraries (defer so they don't block HTML parsing) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer
+          integrity="sha384-EjUdIVmzWliPzdzhxZ9ZoO0etXLKWuUPUftAGxP6qH6Lm4oLwoLaJR0Ba4pIDiDL"
+          crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" defer
+          integrity="sha384-dug+JxfBvklEQdJ4AYuBBAIScUz0bVN73xpy273gcAwHjb3qI0fXmuYNaNfdyYJG"
+          crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer
+          integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk"
+          crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer
+          integrity="sha384-fCAW/rDWORTbQXSiB7mOg0QtQ5c+r0f544y6XoKjuVva0nMBlCpNUjiFeG5iMdS3"
+          crossorigin="anonymous"></script>
+</head>
+<body>
+
+<!-- ── AUTH SCREEN ─────────────────────────────────────────── -->
+<div id="login-screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <svg width="26" height="26" fill="none" stroke="#fff" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"
+           aria-hidden="true">
+        <path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/>
+        <path d="M9 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0"/>
+        <path d="M19 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0"/>
+        <path d="M14 17h1a2 2 0 0 0 2-2v-4l-3-4h-1"/>
+        <path d="M15 9h4l2 4"/>
+      </svg>
+    </div>
+    <h2>FlotaAdmin</h2>
+    <p>Gestión de flotas de taxis</p>
+
+    <div class="auth-tabs" role="tablist">
+      <button class="auth-tab active" role="tab" data-tab="login">Iniciar sesión</button>
+      <button class="auth-tab" role="tab" data-tab="register">Registrarse</button>
+    </div>
+
+    <div id="auth-error" class="error-msg-box" role="alert"></div>
+    <div id="auth-success" class="success-msg" role="status"></div>
+
+    <!-- Login panel -->
+    <div id="tab-login" role="tabpanel">
+      <div class="form-group">
+        <label for="l-email">Email</label>
+        <input type="email" id="l-email" placeholder="tu@email.com"
+               autocomplete="email" inputmode="email"/>
+      </div>
+      <div class="form-group" style="margin-bottom:20px">
+        <label for="l-pass">Contraseña</label>
+        <input type="password" id="l-pass" placeholder="••••••••"
+               autocomplete="current-password"/>
+      </div>
+      <button class="btn primary" id="btn-login">Ingresar</button>
+    </div>
+
+    <!-- Register panel -->
+    <div id="tab-register" style="display:none" role="tabpanel">
+      <div class="form-group">
+        <label for="r-nombre">Nombre completo</label>
+        <input type="text" id="r-nombre" placeholder="Juan Pérez"/>
+      </div>
+      <div class="form-group">
+        <label for="r-username">Nombre de usuario</label>
+        <input type="text" id="r-username" placeholder="ej: juanperez" autocomplete="off"/>
+      </div>
+      <div class="form-group">
+        <label for="r-email">Email</label>
+        <input type="email" id="r-email" placeholder="tu@email.com" inputmode="email"/>
+      </div>
+      <div class="form-group">
+        <label for="r-telefono">Teléfono <span style="font-size:11px;color:var(--muted)">(opcional)</span></label>
+        <input type="tel" id="r-telefono" placeholder="ej: 11 2345-6789" inputmode="tel"/>
+      </div>
+      <div class="form-group" style="margin-bottom:20px">
+        <label for="r-pass">Contraseña</label>
+        <input type="password" id="r-pass" placeholder="Mínimo 6 caracteres"/>
+      </div>
+      <button class="btn primary" id="btn-register">Crear cuenta</button>
+      <p class="auth-note">Al registrarte ingresás como Encargado sin flota asignada. Pedile al titular el link de invitación para unirte a una flota.</p>
+    </div>
+  </div>
+</div><!-- /login-screen -->
+
+
+<!-- ── PENDING SCREEN ──────────────────────────────────────── -->
+<div id="pending-screen">
+  <div class="pending-screen">
+    <div class="pi" aria-hidden="true">⏳</div>
+    <h3>Cuenta pendiente</h3>
+    <p>Tu cuenta fue creada como <strong>Encargado</strong>. Pedile al titular el link de invitación para unirte a su flota. Una vez que te asignen, cerrá sesión y volvé a ingresar.</p>
+    <button class="btn sm" id="btn-logout-pending" style="margin:20px auto 0;display:flex">
+      Volver al login
+    </button>
+  </div>
+</div><!-- /pending-screen -->
+
+
+<!-- ── APP SCREEN ──────────────────────────────────────────── -->
+<div id="app-screen" class="app" style="display:none">
+
+  <!-- Desktop sidebar -->
+  <aside class="desktop-sidebar" aria-label="Navegación principal">
+    <div class="ds-logo">
+      <div class="ds-logo-icon" aria-hidden="true">
+        <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2"
+             stroke-linecap="round" viewBox="0 0 24 24">
+          <path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/>
+          <path d="M9 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0"/>
+          <path d="M19 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0"/>
+          <path d="M14 17h1a2 2 0 0 0 2-2v-4l-3-4h-1"/>
+          <path d="M15 9h4l2 4"/>
+        </svg>
+      </div>
+      <div>
+        <div style="font-size:14px;font-weight:600">FlotaAdmin</div>
+        <div style="font-size:11px;color:var(--muted)" id="ds-role-label">–</div>
+      </div>
+    </div>
+    <nav class="ds-nav" id="ds-nav"></nav>
+    <div class="ds-footer">
+      <div class="ds-user-chip">
+        <div class="ds-avatar" id="ds-av" aria-hidden="true">?</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="ds-name">–</div>
+          <div style="font-size:11px;color:var(--muted)" id="ds-role">–</div>
+        </div>
+        <button id="btn-logout-ds"
+                style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:2px"
+                title="Cerrar sesión" aria-label="Cerrar sesión">✕</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main area -->
+  <div class="desktop-main">
+    <!-- Desktop topbar -->
+    <div class="desktop-topbar">
+      <h2 id="dt-title">Dashboard</h2>
+      <span style="font-size:12px;color:var(--muted)" id="dt-date"></span>
+    </div>
+
+    <!-- Mobile topbar -->
+    <div class="topbar">
+      <h2 id="page-title">–</h2>
+      <div class="topbar-right">
+        <span style="font-size:12px;color:var(--muted)" id="m-name">–</span>
+        <button class="logout-btn" id="btn-logout-app" aria-label="Cerrar sesión">✕</button>
+      </div>
+    </div>
+
+    <!-- Page content injected by JS -->
+    <div class="content" id="main-content"></div>
+
+    <!-- Mobile bottom nav -->
+    <nav class="bottom-nav" id="bottom-nav" aria-label="Navegación principal"></nav>
+  </div>
+</div><!-- /app-screen -->
+
+
+<!-- App entry point — loads after CDN defers complete -->
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+:root {
+  --blue:        #185FA5;
+  --blue-dark:   #0C447C;
+  --blue-light:  #EBF3FB;
+  --green:       #0F6E56;
+  --green-light: #EAF3DE;
+  --amber:       #854F0B;
+  --amber-light: #FAEEDA;
+  --red:         #A32D2D;
+  --red-light:   #FCEBEB;
+  --border:      #e8e9eb;
+  --bg:          #f4f5f7;
+  --white:       #fff;
+  --text:        #1a1a1a;
+  --muted:       #888;
+  --subtle:      #555;
+  --radius:      10px;
+  --radius-sm:   7px;
+  --nav-h:       64px;
+}
