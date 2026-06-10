@@ -106,6 +106,7 @@ export async function doLogout() {
   if (state.chartBar)      { state.chartBar.destroy();      state.chartBar      = null; }
   if (state.chartDoughnut) { state.chartDoughnut.destroy(); state.chartDoughnut = null; }
   showScreen('login');
+  switchAuthTab('login');
   document.getElementById('auth-error').style.display   = 'none';
   document.getElementById('auth-success').style.display = 'none';
 }
